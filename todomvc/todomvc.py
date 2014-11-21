@@ -48,6 +48,7 @@ def login():
     return jsonify(sessionId=sessions.new_session(user.name))
 
 
+#The following routes are to facilitate debugging
 @app.route('/debug/populate', methods=['POST'])
 def populate():
     todo_list = ['Arrive at venue', 'Listen to tutor', 'Do the Tutorial', 'Eat Pizza', 'Work on the project', 'Win']
