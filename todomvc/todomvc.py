@@ -7,13 +7,24 @@ logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 from flask import request, jsonify, json
 
-from storages import *
 from application import app
 from model import *
 
-
-store = ToDoStorage()
-
+def getUser():
+    # Get username from cookies
+    username = request.cookies.get('username')
+    if not username:
+        username = request.args.get('username')
+    # If no username cookie is set, send error
+    if not username:
+        return None, "Please log in first"
+    else:
+        # Check if user set in cookies is valid
+        user = User.query.filter_by(name=username).first()
+        # If no user is found, send error
+        if not user:
+            return None, "Username not found"
+    return user, None
 
 @app.route('/')
 def api():
@@ -21,17 +32,10 @@ def api():
 
 @app.route('/todos', methods=['GET', 'POST'])
 def todos():
-    # Get username from cookies
-    username = request.cookies.get('username')
-    # If no username cookie is set, send error
-    if not username:
-        return "Please log in first", 403
-    else:
-        # Check if user set in cookies is valid
-        user = User.query.filter_by(name=username).first()
-        # If no user is found, send error
-        if not user:
-            return "Username not found", 404
+    # Get User
+    user, err = getUser()
+    if err:
+        return err, 403
 
     # Handle GET requests
     if request.method == 'GET':
@@ -61,17 +65,10 @@ def todos():
 
 @app.route('/todos/<int:todo_id>', methods=['GET', 'PUT', 'DELETE'])
 def todo(todo_id):
-    # Get username from cookies
-    username = request.cookies.get('username')
-    # If no username cookie is set, send error
-    if not username:
-        return "Please log in first", 403
-    else:
-        # Check if user set in cookies is valid
-        user = User.query.filter_by(name=username).first()
-        # If no user is found, send error
-        if not user:
-            return "Username not found", 404
+    # Get User
+    user, err = getUser()
+    if err:
+        return err, 403
 
     # Get specific ToDo
     item = Todo.query.options(db.joinedload(Todo.time_spans)).get(todo_id)
@@ -94,31 +91,32 @@ def todo(todo_id):
         if "subject" not in new_todo:
             return "second", 400
 
-        item.name = new_todo["subject"]
-        item.description = new_todo.get("completed")
+        # Update name
+        item.subject = new_todo["subject"]
+        # Update complete
+        item.completed = new_todo.get("completed")
 
+        # Execute query
         db.session.commit()
+        # Return item as JSON
         return jsonify(item.to_dict())
+    # Handle delete requests
     else:
+        # Find item and delete it
         db.session.query(Todo).filter(Todo.id == todo_id).delete()
+        # Execute Query
         db.session.commit()
 
+        # Return message
         return 'Item deleted'
 
 @app.route('/todos/<int:todo_id>/times', methods=['GET', 'POST'])
 def todoTimes(todo_id):
 
-    # Get username from cookies
-    username = request.cookies.get('username')
-    # If no username cookie is set, send error
-    if not username:
-        return "Please log in first", 403
-    else:
-        # Check if user set in cookies is valid
-        user = User.query.filter_by(name=username).first()
-        # If no user is found, send error
-        if not user:
-            return "Username not found", 404
+    # Get User
+    user, err = getUser()
+    if err:
+        return err, 403
 
     # Get specific ToDo
     item = Todo.query.options(db.joinedload(Todo.time_spans)).get(todo_id)
@@ -144,6 +142,7 @@ def todoTimes(todo_id):
         if "end" not in new_todo_time:
             return "No end time specified", 400
 
+        # Create new todoTime
         todoTime = TodoTime(item, new_todo_time["start"], new_todo_time["end"])
         db.session.add(todoTime)
         db.session.commit()
