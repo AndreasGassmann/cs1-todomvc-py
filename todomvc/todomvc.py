@@ -173,6 +173,7 @@ def logout():
 @app.route('/debug/populate', methods=['GET', 'POST'])
 def populate():
     todo_list = ['Arrive at venue', 'Listen to tutor', 'Do the Tutorial', 'Eat Pizza', 'Work on the project', 'Win']
+    db.drop_all()
     db.create_all()
     user = User("Superman")
     for todo in todo_list:
