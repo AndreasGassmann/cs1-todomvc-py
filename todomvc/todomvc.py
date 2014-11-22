@@ -42,6 +42,12 @@ def todo(todo_id):
         return 'DELETED'
 
 
+@app.route('/login', methods=['POST'])
+def login():
+    user = request.get_json()
+    # TODO: Set Cookie
+
+
 #The following routes are to facilitate debugging
 @app.route('/debug/populate', methods=['POST'])
 def populate():
