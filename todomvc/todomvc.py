@@ -49,8 +49,11 @@ def login():
 @app.route('/debug/populate', methods=['POST'])
 def populate():
     todo_list = ['Arrive at venue', 'Listen to tutor', 'Do the Tutorial', 'Eat Pizza', 'Work on the project', 'Win']
+    db.create_all()
     for todo in todo_list:
-        store.create({'subject': todo, 'finished': False})
+        item = Item(todo)
+        db.session.add(item)
+    db.session.commit()
     return jsonify(length=len(todo_list))
 
 
