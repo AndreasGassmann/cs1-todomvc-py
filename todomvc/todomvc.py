@@ -42,12 +42,6 @@ def todo(todo_id):
         return 'DELETED'
 
 
-@app.route('/login', methods=['POST'])
-def login():
-    user = request.get_json()
-    return 'LOGGED_IN'
-
-
 #The following routes are to facilitate debugging
 @app.route('/debug/populate', methods=['POST'])
 def populate():
