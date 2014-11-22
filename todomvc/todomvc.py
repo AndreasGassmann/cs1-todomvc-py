@@ -1,14 +1,11 @@
-from flask import Flask, request, jsonify, json
-from flask_cors import CORS
-from storages import *
+from flask import request, jsonify, json
 
-app = Flask(__name__)
-cors = CORS(app, resources={r"*": {'origins': '*',
-                                   'headers': 'content-type',
-                                   'methods': 'GET, PUT, POST, DELETE'}})
+from storages import *
+from application import app
+from model import *
+
 
 store = ToDoStorage()
-sessions = SessionStorage()
 
 
 @app.route('/')
