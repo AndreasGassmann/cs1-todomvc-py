@@ -1,14 +1,11 @@
-from flask import Flask, request, jsonify, json
-from flask_cors import CORS
-from storages import *
+from flask import request, jsonify, json
 
-app = Flask(__name__)
-cors = CORS(app, resources={r"*": {'origins': '*',
-                                   'headers': 'content-type',
-                                   'methods': 'GET, PUT, POST, DELETE'}})
+from storages import *
+from application import app
+from model import *
+
 
 store = ToDoStorage()
-sessions = SessionStorage()
 
 
 @app.route('/')
@@ -52,8 +49,11 @@ def login():
 @app.route('/debug/populate', methods=['POST'])
 def populate():
     todo_list = ['Arrive at venue', 'Listen to tutor', 'Do the Tutorial', 'Eat Pizza', 'Work on the project', 'Win']
+    db.create_all()
     for todo in todo_list:
-        store.create({'subject': todo, 'finished': False})
+        item = Item(todo)
+        db.session.add(item)
+    db.session.commit()
     return jsonify(length=len(todo_list))
 
 
