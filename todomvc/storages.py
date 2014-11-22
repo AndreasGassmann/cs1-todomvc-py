@@ -23,13 +23,3 @@ class ToDoStorage(object):
 
     def list(self):
         return self.todos.values()
-
-
-class SessionStorage(object):
-    def __init__(self):
-        self.sessions = {}
-
-    def new_session(self, user_name):
-        session_id = 182352
-        self.sessions[session_id] = user_name
-        return session_id

@@ -45,7 +45,7 @@ def todo(todo_id):
 @app.route('/login', methods=['POST'])
 def login():
     user = request.get_json()
-    return jsonify(sessionId=sessions.new_session(user.name))
+    return 'LOGGED_IN'
 
 
 #The following routes are to facilitate debugging
